@@ -1,0 +1,98 @@
+use std::io;
+
+// Struct para representar um processo
+#[derive(Debug)]
+struct Process {
+    pid: usize,
+    mem_size: i32,
+    time_execution: i32,
+}
+
+impl Process {
+    // Método para criar um novo processo com PID autoincrementado
+    fn new(pid: usize, mem_size: i32, time_execution: i32) -> Self {
+        Process { pid, mem_size, time_execution }
+    }
+}
+
+// Struct para representar a pilha de processos
+struct ProcessStack {
+    processes: Vec<Process>,
+}
+
+impl ProcessStack {
+    // Método para criar uma nova pilha de processos
+    fn new() -> Self {
+        ProcessStack { processes: Vec::new() }
+    }
+
+    // Método para adicionar um processo à pilha
+    fn push(&mut self, process: Process) {
+        self.processes.push(process);
+    }
+
+    // Método para recuperar o próximo processo a ser executado
+    fn pop(&mut self) -> Option<Process> {
+        self.processes.pop()
+    }
+
+    // Método para executar um processo
+    fn execute_process(&mut self, process: &Process) {
+        println!("Iniciando execução do processo PID {}...", process.pid);
+        // Simulação de espera
+        for _ in 0..process.time_execution {
+            println!("Processo em execução...");
+        }
+        println!("Processo PID {} executado com sucesso.", process.pid);
+    }
+
+    // Método para calcular a soma do memSize de todos os processos executados
+    fn total_memory_consumption(&self) -> i32 {
+        self.processes.iter().map(|p| p.mem_size).sum()
+    }
+
+    // Método para calcular o tempo total gasto na execução de todos os processos
+    fn total_execution_time(&self) -> i32 {
+        self.processes.iter().map(|p| p.time_execution).sum()
+    }
+
+    // Método para mostrar o resumo da execução dos processos
+    fn display_summary(&self) {
+        println!("Resumo da execução dos processos:");
+        for process in &self.processes {
+            println!("PID: {}", process.pid);
+        }
+        println!("Consumo total de memória: {}", self.total_memory_consumption());
+        println!("Tempo total gasto na execução: {} segundos", self.total_execution_time());
+    }
+}
+
+fn main() {
+    let mut process_stack = ProcessStack::new();
+
+    // Simulação de entrada de dados pelo usuário
+    let num_processes = 3; // Altere conforme necessário
+
+    for pid in 0..num_processes {
+        println!("Processo {}:", pid + 1);
+        println!("Digite o tamanho de memória:");
+        let mut mem_size = String::new();
+        io::stdin().read_line(&mut mem_size).expect("Erro ao ler entrada");
+        let mem_size: i32 = mem_size.trim().parse().expect("Entrada inválida");
+
+        println!("Digite o tempo de execução (entre 30 e 90 segundos):");
+        let mut time_execution = String::new();
+        io::stdin().read_line(&mut time_execution).expect("Erro ao ler entrada");
+        let time_execution: i32 = time_execution.trim().parse().expect("Entrada inválida");
+
+        process_stack.push(Process::new(pid, mem_size, time_execution));
+    }
+
+    // Executar e remover processos até a pilha estar vazia
+    while let Some(process) = process_stack.pop() {
+        process_stack.execute_process(&process);
+    }
+
+    // Exibir resumo da execução
+    process_stack.display_summary();
+}
